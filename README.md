@@ -2,7 +2,7 @@
 
 This project automatically generates a `.ics` calendar file containing upcoming earnings release events for U.S.-listed companies, using data from the [Finnhub API](https://finnhub.io/).
 
-The file is updated **twice daily** via GitHub Actions and is compatible with iOS/macOS/Google calendars. Useful for investors who want earnings events directly in their calendar apps.
+The file is updated **twice daily** via GitHub Actions and is compatible with iOS/macOS/Google calendars. Useful for investors who want earnings events directly in their calendar apps.新增了A股科技股————葛小鹏
 
 ---
 
