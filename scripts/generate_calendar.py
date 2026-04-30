@@ -293,9 +293,9 @@ def to_cn_event_lines(item: dict, dtstamp: str) -> list[str]:
     end_date = event_date + timedelta(days=1)
     uid = f"CN-{symbol}-{event_date.isoformat()}@earning-calendar-ics"
 
-    # Build summary with stock name
+    # Build summary with stock name only
     report_type = item.get("report_type", "财报")
-    summary = f"[A股] {symbol} {name} {report_type}"
+    summary = f"{name} {report_type}"
 
     description = "\n".join(
         [
