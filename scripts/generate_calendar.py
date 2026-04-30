@@ -15,6 +15,7 @@ Prerequisites:
 import os
 import sys
 from datetime import date, timedelta, datetime, timezone
+from pathlib import Path
 
 import requests
 
@@ -22,8 +23,9 @@ import requests
 # Config
 API = "https://finnhub.io/api/v1/calendar/earnings"
 TOKEN = os.getenv("FINNHUB_TOKEN")
+WATCHLIST_FILE = Path(__file__).parent.parent / "watchlist.txt"
 LOOKBEHIND_DAYS = 15                          # past earnings window
-LOOKAHEAD_DAYS  = 15                          # upcoming earnings window
+LOOKAHEAD_DAYS  = 90                          # upcoming earnings window (3 months)
 
 TODAY = date.today()
 FROM = (TODAY - timedelta(days=LOOKBEHIND_DAYS)).isoformat()
@@ -31,6 +33,21 @@ TO   = (TODAY + timedelta(days=LOOKAHEAD_DAYS)).isoformat()
 
 # ────────────────────────────────────────────────────────────────────────────────
 # Helpers
+def load_watchlist() -> set[str]:
+    """Load symbols from watchlist.txt, ignoring comments and empty lines."""
+    if not WATCHLIST_FILE.exists():
+        print(f"⚠️  Watchlist file not found: {WATCHLIST_FILE}")
+        return set()
+
+    symbols = set()
+    with open(WATCHLIST_FILE, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#"):
+                symbols.add(line.upper())
+    return symbols
+
+
 def fmt_number(num):
     """
     Abbreviate big numbers with B/M.
@@ -139,7 +156,16 @@ def build_calendar(records: list[dict]) -> str:
 
 # ────────────────────────────────────────────────────────────────────────────────
 def main() -> None:
+    watchlist = load_watchlist()
     records = fetch_earnings()
+
+    # Filter by watchlist if not empty
+    if watchlist:
+        filtered = [r for r in records if r.get("symbol", "").upper() in watchlist]
+        print(f"📋  Watchlist: {len(watchlist)} symbols, matched {len(filtered)} events")
+        records = filtered
+    else:
+        print(f"📋  No watchlist configured, using all {len(records)} events")
 
     out_path = "earnings_calendar.ics"
     with open(out_path, "w", encoding="utf-8") as f:

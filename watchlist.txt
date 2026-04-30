@@ -1,0 +1,38 @@
+# 股票代码关注列表
+# 每行一个代码，支持注释（以 # 开头的行会被忽略）
+# 示例：
+# AAPL
+# MSFT
+# NVDA
+
+# === 科技巨头 ===
+AAPL
+MSFT
+GOOGL
+GOOG
+AMZN
+META
+NVDA
+
+# === 半导体 ===
+TSM
+AMD
+AVGO
+QCOM
+ARM
+INTC
+
+# === 软件/SaaS ===
+CRM
+ORCL
+NOW
+SNOW
+PLTR
+
+# === 其他科技 ===
+CRM
+ADBE
+SHOP
+NET
+COIN
+MSTR
