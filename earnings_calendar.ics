@@ -6,254 +6,254 @@ METHOD:PUBLISH
 X-WR-CALNAME:Earnings Calendar
 BEGIN:VEVENT
 UID:NOW-2026-04-22@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260422
 DTEND;VALUE=DATE:20260423
-SUMMARY:NOW Earnings
-DESCRIPTION:Ticker: NOW\nFiscal Qtr: 1\nEstimate EPS: 0.9733\nEst. Revenue:
-  3.78 B\nSource: Finnhub (non-GAAP)
+SUMMARY:NOW Earnings (盘后)
+DESCRIPTION:Ticker: NOW\nFiscal Qtr: 1\nTiming: 盘后\nEstimate EPS: 0.9733\nE
+ st. Revenue: 3.78 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:INTC-2026-04-23@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260423
 DTEND;VALUE=DATE:20260424
-SUMMARY:INTC Earnings
-DESCRIPTION:Ticker: INTC\nFiscal Qtr: 1\nEstimate EPS: 0.014\nEst. Revenue:
-  12.67 B\nSource: Finnhub (non-GAAP)
+SUMMARY:INTC Earnings (盘后)
+DESCRIPTION:Ticker: INTC\nFiscal Qtr: 1\nTiming: 盘后\nEstimate EPS: 0.014\nE
+ st. Revenue: 12.67 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:AMZN-2026-04-29@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260429
 DTEND;VALUE=DATE:20260430
-SUMMARY:AMZN Earnings
-DESCRIPTION:Ticker: AMZN\nFiscal Qtr: 1\nEstimate EPS: 1.667\nEst. Revenue:
-  180.85 B\nSource: Finnhub (non-GAAP)
+SUMMARY:AMZN Earnings (盘后)
+DESCRIPTION:Ticker: AMZN\nFiscal Qtr: 1\nTiming: 盘后\nEstimate EPS: 1.667\nE
+ st. Revenue: 180.85 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:GOOGL-2026-04-29@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260429
 DTEND;VALUE=DATE:20260430
-SUMMARY:GOOGL Earnings
-DESCRIPTION:Ticker: GOOGL\nFiscal Qtr: 1\nEstimate EPS: 2.6976\nEst. Revenu
- e: 109.77 B\nSource: Finnhub (non-GAAP)
+SUMMARY:GOOGL Earnings (盘后)
+DESCRIPTION:Ticker: GOOGL\nFiscal Qtr: 1\nTiming: 盘后\nEstimate EPS: 2.6976\
+ nEst. Revenue: 109.77 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:META-2026-04-29@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260429
 DTEND;VALUE=DATE:20260430
-SUMMARY:META Earnings
-DESCRIPTION:Ticker: META\nFiscal Qtr: 1\nEstimate EPS: 6.8935\nEst. Revenue
- : 56.56 B\nSource: Finnhub (non-GAAP)
+SUMMARY:META Earnings (盘后)
+DESCRIPTION:Ticker: META\nFiscal Qtr: 1\nTiming: 盘后\nEstimate EPS: 6.8935\n
+ Est. Revenue: 56.56 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:MSFT-2026-04-29@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260429
 DTEND;VALUE=DATE:20260430
-SUMMARY:MSFT Earnings
-DESCRIPTION:Ticker: MSFT\nFiscal Qtr: 3\nEstimate EPS: 4.1432\nEst. Revenue
- : 83.02 B\nSource: Finnhub (non-GAAP)
+SUMMARY:MSFT Earnings (盘后)
+DESCRIPTION:Ticker: MSFT\nFiscal Qtr: 3\nTiming: 盘后\nEstimate EPS: 4.1432\n
+ Est. Revenue: 83.02 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:QCOM-2026-04-29@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260429
 DTEND;VALUE=DATE:20260430
-SUMMARY:QCOM Earnings
-DESCRIPTION:Ticker: QCOM\nFiscal Qtr: 2\nEstimate EPS: 2.6106\nEst. Revenue
- : 10.81 B\nSource: Finnhub (non-GAAP)
+SUMMARY:QCOM Earnings (盘后)
+DESCRIPTION:Ticker: QCOM\nFiscal Qtr: 2\nTiming: 盘后\nEstimate EPS: 2.6106\n
+ Est. Revenue: 10.81 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:AAPL-2026-04-30@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260430
 DTEND;VALUE=DATE:20260501
-SUMMARY:AAPL Earnings
-DESCRIPTION:Ticker: AAPL\nFiscal Qtr: 2\nEstimate EPS: 1.9884\nEst. Revenue
- : 111.85 B\nSource: Finnhub (non-GAAP)
+SUMMARY:AAPL Earnings (盘后)
+DESCRIPTION:Ticker: AAPL\nFiscal Qtr: 2\nTiming: 盘后\nEstimate EPS: 1.9884\n
+ Est. Revenue: 111.85 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:SNDK-2026-04-30@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260430
 DTEND;VALUE=DATE:20260501
-SUMMARY:SNDK Earnings
-DESCRIPTION:Ticker: SNDK\nFiscal Qtr: 3\nEstimate EPS: 14.723\nEst. Revenue
- : 4.78 B\nSource: Finnhub (non-GAAP)
+SUMMARY:SNDK Earnings (盘后)
+DESCRIPTION:Ticker: SNDK\nFiscal Qtr: 3\nTiming: 盘后\nEstimate EPS: 14.723\n
+ Est. Revenue: 4.78 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:AAOI-2026-05-07@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260507
 DTEND;VALUE=DATE:20260508
 SUMMARY:AAOI Earnings
-DESCRIPTION:Ticker: AAOI\nFiscal Qtr: 1\nEstimate EPS: -0.0495\nEst. Revenu
- e: 160 M\nSource: Finnhub (non-GAAP)
+DESCRIPTION:Ticker: AAOI\nFiscal Qtr: 1\nTiming: 未指定\nEstimate EPS: -0.0495
+ \nEst. Revenue: 160 M\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:NVDA-2026-05-20@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260520
 DTEND;VALUE=DATE:20260521
-SUMMARY:NVDA Earnings
-DESCRIPTION:Ticker: NVDA\nFiscal Qtr: 1\nEstimate EPS: 1.792\nEst. Revenue:
-  80.07 B\nSource: Finnhub (non-GAAP)
+SUMMARY:NVDA Earnings (盘后)
+DESCRIPTION:Ticker: NVDA\nFiscal Qtr: 1\nTiming: 盘后\nEstimate EPS: 1.792\nE
+ st. Revenue: 80.07 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:CRM-2026-05-26@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260526
 DTEND;VALUE=DATE:20260527
-SUMMARY:CRM Earnings
-DESCRIPTION:Ticker: CRM\nFiscal Qtr: 1\nEstimate EPS: 3.1441\nEst. Revenue:
-  11.17 B\nSource: Finnhub (non-GAAP)
+SUMMARY:CRM Earnings (盘后)
+DESCRIPTION:Ticker: CRM\nFiscal Qtr: 1\nTiming: 盘后\nEstimate EPS: 3.1441\nE
+ st. Revenue: 11.17 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:SNOW-2026-05-27@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260527
 DTEND;VALUE=DATE:20260528
-SUMMARY:SNOW Earnings
-DESCRIPTION:Ticker: SNOW\nFiscal Qtr: 1\nEstimate EPS: 0.3241\nEst. Revenue
- : 1.35 B\nSource: Finnhub (non-GAAP)
+SUMMARY:SNOW Earnings (盘后)
+DESCRIPTION:Ticker: SNOW\nFiscal Qtr: 1\nTiming: 盘后\nEstimate EPS: 0.3241\n
+ Est. Revenue: 1.35 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:AVGO-2026-06-03@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260603
 DTEND;VALUE=DATE:20260604
-SUMMARY:AVGO Earnings
-DESCRIPTION:Ticker: AVGO\nFiscal Qtr: 2\nEstimate EPS: 2.4646\nEst. Revenue
- : 22.87 B\nSource: Finnhub (non-GAAP)
+SUMMARY:AVGO Earnings (盘后)
+DESCRIPTION:Ticker: AVGO\nFiscal Qtr: 2\nTiming: 盘后\nEstimate EPS: 2.4646\n
+ Est. Revenue: 22.87 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:ORCL-2026-06-09@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260609
 DTEND;VALUE=DATE:20260610
-SUMMARY:ORCL Earnings
-DESCRIPTION:Ticker: ORCL\nFiscal Qtr: 4\nEstimate EPS: 1.9985\nEst. Revenue
- : 19.48 B\nSource: Finnhub (non-GAAP)
+SUMMARY:ORCL Earnings (盘后)
+DESCRIPTION:Ticker: ORCL\nFiscal Qtr: 4\nTiming: 盘后\nEstimate EPS: 1.9985\n
+ Est. Revenue: 19.48 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:ADBE-2026-06-11@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260611
 DTEND;VALUE=DATE:20260612
-SUMMARY:ADBE Earnings
-DESCRIPTION:Ticker: ADBE\nFiscal Qtr: 2\nEstimate EPS: 5.9506\nEst. Revenue
- : 6.59 B\nSource: Finnhub (non-GAAP)
+SUMMARY:ADBE Earnings (盘后)
+DESCRIPTION:Ticker: ADBE\nFiscal Qtr: 2\nTiming: 盘后\nEstimate EPS: 5.9506\n
+ Est. Revenue: 6.59 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:MU-2026-06-23@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260623
 DTEND;VALUE=DATE:20260624
-SUMMARY:MU Earnings
-DESCRIPTION:Ticker: MU\nFiscal Qtr: 3\nEstimate EPS: 19.8241\nEst. Revenue:
-  34.80 B\nSource: Finnhub (non-GAAP)
+SUMMARY:MU Earnings (盘后)
+DESCRIPTION:Ticker: MU\nFiscal Qtr: 3\nTiming: 盘后\nEstimate EPS: 19.8241\nE
+ st. Revenue: 34.80 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:GOOGL-2026-07-21@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260721
 DTEND;VALUE=DATE:20260722
-SUMMARY:GOOGL Earnings
-DESCRIPTION:Ticker: GOOGL\nFiscal Qtr: 2\nEstimate EPS: 2.8504\nEst. Revenu
- e: 116.80 B\nSource: Finnhub (non-GAAP)
+SUMMARY:GOOGL Earnings (盘后)
+DESCRIPTION:Ticker: GOOGL\nFiscal Qtr: 2\nTiming: 盘后\nEstimate EPS: 2.8504\
+ nEst. Revenue: 116.80 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:NOW-2026-07-21@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260721
 DTEND;VALUE=DATE:20260722
-SUMMARY:NOW Earnings
-DESCRIPTION:Ticker: NOW\nFiscal Qtr: 2\nEstimate EPS: 0.8766\nEst. Revenue:
-  3.95 B\nSource: Finnhub (non-GAAP)
+SUMMARY:NOW Earnings (盘后)
+DESCRIPTION:Ticker: NOW\nFiscal Qtr: 2\nTiming: 盘后\nEstimate EPS: 0.8766\nE
+ st. Revenue: 3.95 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:INTC-2026-07-22@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260722
 DTEND;VALUE=DATE:20260723
-SUMMARY:INTC Earnings
-DESCRIPTION:Ticker: INTC\nFiscal Qtr: 2\nEstimate EPS: 0.1987\nEst. Revenue
- : 14.50 B\nSource: Finnhub (non-GAAP)
+SUMMARY:INTC Earnings (盘后)
+DESCRIPTION:Ticker: INTC\nFiscal Qtr: 2\nTiming: 盘后\nEstimate EPS: 0.1987\n
+ Est. Revenue: 14.50 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:ARM-2026-07-27@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260727
 DTEND;VALUE=DATE:20260728
 SUMMARY:ARM Earnings
-DESCRIPTION:Ticker: ARM\nFiscal Qtr: 1\nEstimate EPS: 0.3662\nEst. Revenue:
-  1.26 B\nSource: Finnhub (non-GAAP)
+DESCRIPTION:Ticker: ARM\nFiscal Qtr: 1\nTiming: 未指定\nEstimate EPS: 0.3662\n
+ Est. Revenue: 1.26 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:META-2026-07-28@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260728
 DTEND;VALUE=DATE:20260729
-SUMMARY:META Earnings
-DESCRIPTION:Ticker: META\nFiscal Qtr: 2\nEstimate EPS: 7.351\nEst. Revenue:
-  60.64 B\nSource: Finnhub (non-GAAP)
+SUMMARY:META Earnings (盘后)
+DESCRIPTION:Ticker: META\nFiscal Qtr: 2\nTiming: 盘后\nEstimate EPS: 7.351\nE
+ st. Revenue: 60.64 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:MSFT-2026-07-28@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260728
 DTEND;VALUE=DATE:20260729
-SUMMARY:MSFT Earnings
-DESCRIPTION:Ticker: MSFT\nFiscal Qtr: 4\nEstimate EPS: 4.3383\nEst. Revenue
- : 89.32 B\nSource: Finnhub (non-GAAP)
+SUMMARY:MSFT Earnings (盘后)
+DESCRIPTION:Ticker: MSFT\nFiscal Qtr: 4\nTiming: 盘后\nEstimate EPS: 4.3383\n
+ Est. Revenue: 89.32 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:QCOM-2026-07-28@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260728
 DTEND;VALUE=DATE:20260729
-SUMMARY:QCOM Earnings
-DESCRIPTION:Ticker: QCOM\nFiscal Qtr: 3\nEstimate EPS: 2.5045\nEst. Revenue
- : 10.48 B\nSource: Finnhub (non-GAAP)
+SUMMARY:QCOM Earnings (盘后)
+DESCRIPTION:Ticker: QCOM\nFiscal Qtr: 3\nTiming: 盘后\nEstimate EPS: 2.5045\n
+ Est. Revenue: 10.48 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:AAPL-2026-07-29@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260729
 DTEND;VALUE=DATE:20260730
-SUMMARY:AAPL Earnings
-DESCRIPTION:Ticker: AAPL\nFiscal Qtr: 3\nEstimate EPS: 1.7604\nEst. Revenue
- : 104.29 B\nSource: Finnhub (non-GAAP)
+SUMMARY:AAPL Earnings (盘后)
+DESCRIPTION:Ticker: AAPL\nFiscal Qtr: 3\nTiming: 盘后\nEstimate EPS: 1.7604\n
+ Est. Revenue: 104.29 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:AMZN-2026-07-29@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260729
 DTEND;VALUE=DATE:20260730
-SUMMARY:AMZN Earnings
-DESCRIPTION:Ticker: AMZN\nFiscal Qtr: 2\nEstimate EPS: 1.8272\nEst. Revenue
- : 192.39 B\nSource: Finnhub (non-GAAP)
+SUMMARY:AMZN Earnings (盘后)
+DESCRIPTION:Ticker: AMZN\nFiscal Qtr: 2\nTiming: 盘后\nEstimate EPS: 1.8272\n
+ Est. Revenue: 192.39 B\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:MSTR-2026-07-29@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260729
 DTEND;VALUE=DATE:20260730
 SUMMARY:MSTR Earnings
-DESCRIPTION:Ticker: MSTR\nFiscal Qtr: 2\nEstimate EPS: 14.6549\nEst. Revenu
- e: 122 M\nSource: Finnhub (non-GAAP)
+DESCRIPTION:Ticker: MSTR\nFiscal Qtr: 2\nTiming: 未指定\nEstimate EPS: 14.6549
+ \nEst. Revenue: 122 M\nSource: Finnhub (non-GAAP)
 END:VEVENT
 BEGIN:VEVENT
 UID:NET-2026-07-29@earning-calendar-ics
-DTSTAMP:20260430T034134Z
+DTSTAMP:20260430T034848Z
 DTSTART;VALUE=DATE:20260729
 DTEND;VALUE=DATE:20260730
-SUMMARY:NET Earnings
-DESCRIPTION:Ticker: NET\nFiscal Qtr: 2\nEstimate EPS: 0.2702\nEst. Revenue:
-  672 M\nSource: Finnhub (non-GAAP)
+SUMMARY:NET Earnings (盘后)
+DESCRIPTION:Ticker: NET\nFiscal Qtr: 2\nTiming: 盘后\nEstimate EPS: 0.2702\nE
+ st. Revenue: 672 M\nSource: Finnhub (non-GAAP)
 END:VEVENT
 END:VCALENDAR
