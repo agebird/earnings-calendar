@@ -135,10 +135,21 @@ def to_event_lines(item: dict, dtstamp: str) -> list[str]:
     end_date = event_date + timedelta(days=1)  # all-day events use exclusive end
     uid = f"{symbol}-{event_date.isoformat()}@earning-calendar-ics"
 
+    # Parse hour field: bmo = 盘前, amc = 盘后
+    hour = item.get("hour", "")
+    hour_map = {"bmo": "盘前", "amc": "盘后", "": ""}
+    timing = hour_map.get(hour, "")
+
+    # Build summary with timing
+    summary = f"{symbol} Earnings"
+    if timing:
+        summary = f"{symbol} Earnings ({timing})"
+
     description = "\n".join(
         [
             f"Ticker: {symbol}",
             f"Fiscal Qtr: {item.get('quarter', '-')}",
+            f"Timing: {timing if timing else '未指定'}",
             f"Estimate EPS: {item.get('epsEstimate', '-')}",
             f"Est. Revenue: {fmt_number(item.get('revenueEstimate'))}",
             "Source: Finnhub (non-GAAP)",
@@ -151,7 +162,7 @@ def to_event_lines(item: dict, dtstamp: str) -> list[str]:
         f"DTSTAMP:{dtstamp}",
         f"DTSTART;VALUE=DATE:{event_date.strftime('%Y%m%d')}",
         f"DTEND;VALUE=DATE:{end_date.strftime('%Y%m%d')}",
-        f"SUMMARY:{escape_ics_text(f'{symbol} Earnings')}",
+        f"SUMMARY:{escape_ics_text(summary)}",
         f"DESCRIPTION:{escape_ics_text(description)}",
         "END:VEVENT",
     ]
