@@ -190,6 +190,10 @@ def fetch_cn_earnings(watchlist_cn: set[str]) -> list[dict]:
                     except:
                         continue
 
+                # A股财报实际是在披露日期前一天晚上公布
+                # 例如：披露日期显示20260430，实际20260429晚上发布
+                event_date = event_date - timedelta(days=1)
+
                 # 只保留时间窗口内的记录
                 from_date = TODAY - timedelta(days=LOOKBEHIND_DAYS)
                 to_date = TODAY + timedelta(days=LOOKAHEAD_DAYS)
