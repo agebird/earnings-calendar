@@ -68,13 +68,42 @@ def fmt_number(num):
 
 
 def fetch_earnings() -> list[dict]:
-    """Call Finnhub and return raw earnings list."""
+    """Call Finnhub with chunked requests to avoid API limit (1500 records max)."""
     if not TOKEN:
         raise RuntimeError("FINNHUB_TOKEN env-var is missing.")
-    params = {"from": FROM, "to": TO, "token": TOKEN}
-    resp = requests.get(API, params=params, timeout=30)
-    resp.raise_for_status()
-    return resp.json().get("earningsCalendar", [])
+
+    # Split requests into 15-day chunks to avoid 1500 record limit
+    chunk_size = 15
+    start_date = date.fromisoformat(FROM)
+    end_date = date.fromisoformat(TO)
+
+    all_records = []
+    current = start_date
+
+    while current < end_date:
+        chunk_end = min(current + timedelta(days=chunk_size), end_date)
+        params = {
+            "from": current.isoformat(),
+            "to": chunk_end.isoformat(),
+            "token": TOKEN,
+        }
+        resp = requests.get(API, params=params, timeout=30)
+        resp.raise_for_status()
+        records = resp.json().get("earningsCalendar", [])
+        all_records.extend(records)
+        print(f"  📥  {current.isoformat()} ~ {chunk_end.isoformat()}: {len(records)} records")
+        current = chunk_end
+
+    # Deduplicate by symbol + date
+    seen = set()
+    unique_records = []
+    for r in all_records:
+        key = (r.get("symbol"), r.get("date"))
+        if key not in seen:
+            seen.add(key)
+            unique_records.append(r)
+
+    return unique_records
 
 
 def escape_ics_text(value: str) -> str:
