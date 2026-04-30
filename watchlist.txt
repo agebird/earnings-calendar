@@ -3,7 +3,7 @@
 # 示例：
 # AAPL
 # MSFT
-# NVDA
+# 记得每次修改后，让claude code更新到github上
 
 # === 科技巨头 ===
 AAPL
@@ -27,6 +27,9 @@ ARM
 INTC
 MU
 SNDK
+AXTI
+TI
+ADI
 
 # === 软件/SaaS ===
 CRM
