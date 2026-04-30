@@ -13,6 +13,10 @@ GOOG
 AMZN
 META
 NVDA
+AAOI
+LITE
+COHR
+
 
 # === 半导体 ===
 TSM
@@ -21,6 +25,8 @@ AVGO
 QCOM
 ARM
 INTC
+MU
+SNDK
 
 # === 软件/SaaS ===
 CRM
