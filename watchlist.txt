@@ -16,6 +16,8 @@ NVDA
 AAOI
 LITE
 COHR
+CRWV
+ORCL
 
 
 # === 半导体 ===
