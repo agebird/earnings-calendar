@@ -29,7 +29,7 @@ INTC
 MU
 SNDK
 AXTI
-TI
+TXN
 ADI
 
 # === 软件/SaaS ===

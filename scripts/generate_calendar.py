@@ -149,6 +149,82 @@ def fetch_earnings() -> list[dict]:
     return unique_records
 
 
+def fetch_yfinance_earnings(
+    watchlist: set[str], existing_symbols: set[str]
+) -> list[dict]:
+    """Fallback: use yfinance for tickers Finnhub didn't cover.
+
+    yfinance 1.2.0+ provides ``Ticker.calendar`` as a dict with keys
+    like ``Earnings Date`` (list of date), ``Earnings Average``, etc.
+
+    Note: exclusion is by symbol only (not symbol+date). If Finnhub
+    returned any event for a ticker, yfinance is skipped for that
+    ticker entirely.  This avoids redundant queries at the cost of
+    potentially missing a *different* earnings date for the same
+    ticker within the window.
+
+    Args:
+        watchlist: All US tickers of interest.
+        existing_symbols: Tickers already found by Finnhub (skip these).
+
+    Returns:
+        List of records in the same format as Finnhub.
+    """
+    import time as _time
+    import yfinance as yf
+
+    missing = watchlist - existing_symbols
+    if not missing:
+        return []
+
+    from_date = TODAY - timedelta(days=LOOKBEHIND_DAYS)
+    to_date = TODAY + timedelta(days=LOOKAHEAD_DAYS)
+    records: list[dict] = []
+
+    print(f"\n  🐍  yfinance fallback for {len(missing)} tickers…")
+    for i, symbol in enumerate(sorted(missing), 1):
+        try:
+            ticker = yf.Ticker(symbol)
+            cal = ticker.calendar
+        except Exception as e:
+            print(f"    [!] {symbol}: {e}")
+            _time.sleep(0.5)
+            continue
+
+        if not cal:
+            print(f"    [!] {symbol}: empty calendar data")
+            _time.sleep(0.5)
+            continue
+
+        # ``Earnings Date`` is a list of date objects
+        raw_dates = cal.get("Earnings Date")
+        if not raw_dates:
+            _time.sleep(0.5)
+            continue
+
+        event_date = raw_dates[0]
+        if isinstance(event_date, datetime):
+            event_date = event_date.date()
+        if not (from_date <= event_date <= to_date):
+            _time.sleep(0.5)
+            continue
+
+        records.append({
+            "symbol": symbol,
+            "date": event_date.isoformat(),
+            "hour": "",
+            "quarter": "",
+            "epsEstimate": cal.get("Earnings Average"),
+            "revenueEstimate": cal.get("Revenue Average"),
+            "source": "yf",
+        })
+        print(f"    [{i}/{len(missing)}] {symbol}: {event_date}")
+        _time.sleep(0.5)
+
+    print(f"  🐍  yfinance found {len(records)} tickers")
+    return records
+
+
 def fetch_cn_earnings(watchlist_cn: set[str]) -> list[dict]:
     """Fetch A-share disclosure schedule via AKShare."""
     if not watchlist_cn:
@@ -262,14 +338,16 @@ def to_event_lines(item: dict, dtstamp: str) -> list[str]:
     if timing:
         summary = f"{symbol} Earnings ({timing})"
 
+    source_label = "yfinance" if item.get("source") == "yf" else "Finnhub (non-GAAP)"
+
     description = "\n".join(
         [
             f"Ticker: {symbol}",
             f"Fiscal Qtr: {item.get('quarter', '-')}",
             f"Timing: {timing if timing else '未指定'}",
-            f"Estimate EPS: {item.get('epsEstimate', '-')}",
+            f"Estimate EPS: {item.get('epsEstimate') if item.get('epsEstimate') is not None else '-'}",
             f"Est. Revenue: {fmt_number(item.get('revenueEstimate'))}",
-            "Source: Finnhub (non-GAAP)",
+            f"Source: {source_label}",
         ]
     )
 
@@ -360,8 +438,19 @@ def main() -> None:
 
     if watchlist:
         filtered = [r for r in us_records if r.get("symbol", "").upper() in watchlist]
+        found_symbols = {r.get("symbol", "").upper() for r in filtered}
         print(f"📋  美股 Watchlist: {len(watchlist)} symbols, matched {len(filtered)} events")
         all_records.extend(filtered)
+
+        # yfinance fallback for tickers Finnhub didn't cover
+        yf_records = fetch_yfinance_earnings(watchlist, found_symbols)
+        # Deduplicate against finnhub results by (symbol, date)
+        yf_seen = set()
+        for r in yf_records:
+            key = (r.get("symbol"), r.get("date"))
+            if key not in yf_seen:
+                yf_seen.add(key)
+                all_records.append(r)
     else:
         print(f"📋  No US watchlist configured, using all {len(us_records)} events")
         all_records.extend(us_records)
