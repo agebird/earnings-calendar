@@ -33,6 +33,12 @@ TXN
 ADI
 TSEM
 
+# === 半导体设备 ===
+AMAT
+LRCX
+BESI
+
+
 # === 软件/SaaS ===
 CRM
 ORCL
