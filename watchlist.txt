@@ -32,6 +32,7 @@ AXTI
 TXN
 ADI
 TSEM
+MRVL
 
 # === 半导体设备 ===
 AMAT
@@ -42,15 +43,17 @@ BESI
 # === 软件/SaaS ===
 CRM
 ORCL
-NOW
+OKTA
 SNOW
 PLTR
+CRWD
+DDOG
+NET
+
 
 # === 其他科技 ===
-CRM
 ADBE
 SHOP
-NET
 COIN
 MSTR
 CSCO
