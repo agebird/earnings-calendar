@@ -677,7 +677,7 @@ def to_cn_event_lines(item: dict, dtstamp: str) -> list[str]:
             f"股票简称: {name}",
             f"报告类型: {report_type}",
             f"披露日期: {event_date.isoformat()}",
-            "Source: AKShare (东方财富)",
+            "Source: AKShare (巨潮资讯)",
         ]
     )
 
