@@ -53,27 +53,23 @@ FROM = (TODAY - timedelta(days=LOOKBEHIND_DAYS)).isoformat()
 TO   = (TODAY + timedelta(days=LOOKAHEAD_DAYS)).isoformat()
 
 # A股财报 period 配置（根据当前月份动态选择）
+# 披露节奏：年报（次年1-4月）、一季报（4月）、半年报（7-8月）、三季报（10月）
+# 预约披露表通常在披露季前公布，所以查询月份应覆盖披露季 ± 提前期，
+# 具体记录再由 LOOKBEHIND/LOOKAHEAD 窗口过滤。
 def get_cn_periods() -> list[str]:
     """Get relevant disclosure periods based on current date."""
     year = TODAY.year
     month = TODAY.month
-    periods = []
 
-    # 根据月份确定需要获取的财报周期
-    # 年报（次年1-4月披露）、一季报（4月披露）、半年报（7-8月披露）、三季报（10月披露）
-    if month <= 4:
-        periods.append(f"{year - 1}年报")  # 前年年报（今年披露）
-        periods.append(f"{year}一季")       # 今年一季报
-    elif month <= 8:
-        periods.append(f"{year}一季")       # 今年一季报
-        periods.append(f"{year - 1}年报")   # 前年年报（可能延期披露）
-    elif month <= 10:
-        periods.append(f"{year}三季")       # 今年三季报
-    else:
-        periods.append(f"{year}三季")       # 今年三季报
-        periods.append(f"{year}年报")       # 今年年报（次年披露）
-
-    return periods
+    if month <= 4:                          # 1-4月: 上年年报 + 一季报
+        return [f"{year - 1}年报", f"{year}一季"]
+    if month <= 6:                          # 5-6月: 半年报预约表陆续公布
+        return [f"{year}半年报"]
+    if month <= 9:                          # 7-9月: 半年报披露季 + 三季报预约
+        return [f"{year}半年报", f"{year}三季"]
+    if month <= 10:                         # 10月: 三季报
+        return [f"{year}三季"]
+    return [f"{year}三季", f"{year}年报"]   # 11-12月: 三季报 + 次年年报预约
 
 # ────────────────────────────────────────────────────────────────────────────────
 # Helpers
@@ -590,7 +586,11 @@ def fetch_cn_earnings(watchlist_cn: set[str]) -> list[dict]:
             print(f"      {period}: {len(df_filtered)} 条匹配")
 
         except Exception as e:
-            print(f"      {period}: 错误 - {e}")
+            # akshare 对空预约数据的已知报错（巨潮未发布该 period 预约表时），视为无数据
+            if "Length mismatch" in str(e):
+                print(f"      {period}: 暂无预约披露数据")
+            else:
+                print(f"      {period}: 错误 - {e}")
 
     return all_records
 
