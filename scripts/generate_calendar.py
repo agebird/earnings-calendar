@@ -1,20 +1,26 @@
 #!/usr/bin/env python3
 """
-Generate an earnings-calendar ICS file using Finnhub API (US stocks) and AKShare (A-shares).
+Generate an earnings-calendar ICS file using Finnhub API (US stocks), AKShare (A-shares),
+and HKEXNews (Hong Kong stocks).
 
 1. Fetch earnings for the coming 90 days (US stocks via Finnhub).
 2. Fetch disclosure schedule for A-shares via AKShare.
-3. Convert each record to an all-day iCalendar event.
-4. Write/overwrite earnings_calendar.ics in repository root.
+3. Fetch HK earnings announcements & board-meeting notices via HKEXNews (HK stocks).
+4. Convert each record to an all-day iCalendar event.
+5. Write/overwrite earnings_calendar.ics in repository root.
 
 Prerequisites:
   • FINNHUB_TOKEN must be provided as env var (for US stocks).
   • pip install -r requirements.txt
   • pip install akshare (for A-shares)
+  • pip install pymupdf (for HK board-meeting PDF parsing)
 """
 
+import json
 import os
+import re
 import sys
+import time as _time
 from datetime import date, timedelta, datetime, timezone
 from pathlib import Path
 import pandas as pd
@@ -27,8 +33,20 @@ API = "https://finnhub.io/api/v1/calendar/earnings"
 TOKEN = os.getenv("FINNHUB_TOKEN")
 WATCHLIST_FILE = Path(__file__).parent.parent / "watchlist.txt"
 WATCHLIST_CN_FILE = Path(__file__).parent.parent / "watchlist_cn.txt"
+WATCHLIST_HK_FILE = Path(__file__).parent.parent / "watchlist_hk.txt"
 LOOKBEHIND_DAYS = 15                          # past earnings window
 LOOKAHEAD_DAYS  = 90                          # upcoming earnings window (3 months)
+
+# 港交所披露易（HKEXNews）公告标题搜索
+HKEX_SEARCH_URL = "https://www1.hkexnews.hk/search/titleSearchServlet.do"
+HKEX_FILE_BASE  = "https://www1.hkexnews.hk"
+HKEX_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+HKEX_SLEEP = 1.5                               # 请求间隔，避免触发限流
+HKEX_WINDOW_DAYS = 7                           # 搜索窗口（rowRange=1000 上限）
+# 业绩公布公告标题关键词（搜过去窗口）
+HKEX_PERF_TITLES = ["業績公布", "業績公佈", "業績公告", "INTERIM RESULTS", "ANNUAL RESULTS", "FINAL RESULTS"]
+# 董事会会议通告标题关键词（搜未来窗口，预告业绩公布日）
+HKEX_BOARD_TITLES = ["董事會會議通告", "董事會會議召開日期"]
 
 TODAY = date.today()
 FROM = (TODAY - timedelta(days=LOOKBEHIND_DAYS)).isoformat()
@@ -89,6 +107,284 @@ def load_watchlist_cn() -> set[str]:
                 code = line.replace("sh", "").replace("sz", "").replace("bj", "")
                 symbols.add(code)
     return symbols
+
+
+def load_watchlist_hk() -> set[str]:
+    """Load HK symbols from watchlist_hk.txt, ignoring comments and empty lines.
+
+    Accepts 00700 / 0700 / 700.HK / 00700.HK formats; normalizes to 5-digit.
+    """
+    if not WATCHLIST_HK_FILE.exists():
+        print(f"⚠️  HK watchlist file not found: {WATCHLIST_HK_FILE}")
+        return set()
+
+    symbols = set()
+    with open(WATCHLIST_HK_FILE, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#"):
+                code = re.sub(r"\.HK$|\.hk$", "", line)
+                code = re.sub(r"\D", "", code)
+                if code:
+                    symbols.add(code.zfill(5))
+    return symbols
+
+
+def normalize_hk_code(raw: str) -> str:
+    """Normalize a HKEX stock code to 5-digit form ('700' -> '00700')."""
+    return re.sub(r"\D", "", raw or "").zfill(5)
+
+
+def hkex_search(title: str, from_date: str, to_date: str, rows: int = 1000,
+                lang: str = "ZH") -> list[dict]:
+    """Search HKEXNews announcement titles within [from_date, to_date].
+
+    from_date/to_date are 'YYYYMMDD' strings. Uses title keyword (substring match).
+    rowRange=1000 returns everything for a ≤7-day window (no pagination needed).
+    """
+    params = {
+        "sortDir": "0",
+        "sortByOptions": "DateTime",
+        "category": "0",
+        "market": "SEHK",
+        "stockId": "-1",
+        "documentType": "-1",
+        "fromDate": from_date,
+        "toDate": to_date,
+        "title": title,
+        "searchType": "1",
+        "t1code": "-2",
+        "t2Gcode": "-2",
+        "t2code": "-2",
+        "rowRange": str(rows),
+        "lang": lang,
+    }
+    for attempt in range(3):
+        try:
+            resp = requests.get(HKEX_SEARCH_URL, params=params, timeout=30,
+                                headers={"User-Agent": HKEX_UA})
+            resp.raise_for_status()
+            data = resp.json()
+            result = data.get("result")
+            if result:
+                return json.loads(result)
+            # 空结果：可能是限流（HKEXNews 对频繁请求返回空 result），重试
+            if attempt < 2:
+                print(f"      [retry {attempt + 1}] {title} {from_date}~{to_date}: 空结果（可能限流）")
+        except Exception as e:
+            print(f"      [retry {attempt + 1}] {title} {from_date}~{to_date}: {e}")
+        _time.sleep(HKEX_SLEEP * (attempt + 3))
+    return []
+
+
+def hkex_search_windows(keywords: list[str], start: date, end: date,
+                        lang: str = "ZH") -> list[dict]:
+    """Search HKEXNews over date range in ≤7-day chunks, dedup by (code, title, time)."""
+    all_rows: list[dict] = []
+    seen = set()
+    for kw in keywords:
+        current = start
+        while current < end:
+            win_end = min(current + timedelta(days=HKEX_WINDOW_DAYS), end)
+            rows = hkex_search(kw, current.strftime("%Y%m%d"), win_end.strftime("%Y%m%d"), lang=lang)
+            for row in rows:
+                key = (row.get("TITLE"), row.get("DATE_TIME"), row.get("STOCK_CODE"))
+                if key not in seen:
+                    seen.add(key)
+                    all_rows.append(row)
+            current = win_end
+            _time.sleep(HKEX_SLEEP)
+    return all_rows
+
+
+def report_type_from_title(title: str) -> str:
+    """Guess report type (中期/全年/季度) from an announcement title."""
+    if "中期" in title:
+        return "中期业绩"
+    if re.search(r"半年", title):
+        return "中期业绩"
+    if re.search(r"全年|末期|年度", title):
+        return "全年业绩"
+    if "季度" in title or "季報" in title:
+        return "季度业绩"
+    return "业绩公布"
+
+
+# 中文数字解析（港交所公告日期）
+_CN_DIGIT = {"零": 0, "〇": 0, "○": 0, "一": 1, "二": 2, "两": 2,
+             "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+_EN_MONTH = {"january": 1, "february": 2, "march": 3, "april": 4, "may": 5,
+             "june": 6, "july": 7, "august": 8, "september": 9, "october": 10,
+             "november": 11, "december": 12}
+
+
+def _cn_to_int(s: str) -> int | None:
+    if not s:
+        return None
+    if s == "十":
+        return 10
+    if s.startswith("十"):
+        return 10 + _CN_DIGIT.get(s[1], 0)
+    if "十" in s:
+        t, u = s.split("十", 1)
+        return _CN_DIGIT.get(t, 0) * 10 + _CN_DIGIT.get(u, 0)
+    if len(s) >= 2 and all(c in _CN_DIGIT for c in s):   # 年份：二零二六 → 2026
+        val = 0
+        for c in s:
+            val = val * 10 + _CN_DIGIT[c]
+        return val
+    return _CN_DIGIT.get(s)
+
+
+_HK_DATE_PATTERNS = [
+    re.compile(r"(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日"),
+    re.compile(r"([零〇○一二三四五六七八九两]{4})\s*年\s*([零〇○一二三四五六七八九十]{1,3})\s*月\s*([零〇○一二三四五六七八九十]{1,3})\s*日"),
+    re.compile(r"(\d{1,2})(?:st|nd|rd|th)?\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4})", re.I),
+    re.compile(r"(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})", re.I),
+]
+
+
+def _parse_date_match(pat: re.Pattern, m: re.Match) -> str | None:
+    if pat is _HK_DATE_PATTERNS[0]:
+        return f"{int(m.group(1)):04d}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
+    if pat is _HK_DATE_PATTERNS[1]:
+        y, mo, d = _cn_to_int(m.group(1)), _cn_to_int(m.group(2)), _cn_to_int(m.group(3))
+        if not (y and mo and d):
+            return None
+        return f"{y:04d}-{mo:02d}-{d:02d}"
+    if pat is _HK_DATE_PATTERNS[2]:
+        return f"{int(m.group(3)):04d}-{_EN_MONTH[m.group(2).lower()]:02d}-{int(m.group(1)):02d}"
+    return f"{int(m.group(3)):04d}-{_EN_MONTH[m.group(1).lower()]:02d}-{int(m.group(2)):02d}"
+
+
+def extract_board_meeting_date(pdf_text: str) -> str | None:
+    """Extract the earnings-related board meeting date from an announcement PDF text.
+
+    Strategy: collapse whitespace (keeps single spaces for English), find date
+    patterns, and accept a date only when its ±150-char context mentions a board
+    meeting + earnings. Returns 'YYYY-MM-DD' or None.
+    """
+    flat = re.sub(r"\s+", " ", pdf_text)
+    for pat in _HK_DATE_PATTERNS:
+        for m in pat.finditer(flat):
+            d = _parse_date_match(pat, m)
+            if not d or not (2000 <= int(d[:4]) <= 2030):
+                continue
+            ctx = flat[max(0, m.start() - 150):m.end() + 150]
+            has_meeting = (
+                "董事會會議" in ctx
+                or bool(re.search(r"舉行.{0,6}會議|召開.{0,6}會議", ctx))
+                or bool(re.search(r"meeting of the board|board meeting|will be held", ctx, re.I))
+            )
+            has_perf = bool(re.search(r"業績|財務報表|中期報告|年度報告|季度|財務業績|result", ctx, re.I))
+            if has_meeting and has_perf:
+                return d
+    return None
+
+
+def fetch_hk_earnings(watchlist_hk: set[str]) -> list[dict]:
+    """Fetch HK earnings events from HKEXNews for the watchlist.
+
+    1. Past window (LOOKBEHIND_DAYS): earnings announcements already published.
+    2. Future window (LOOKAHEAD_DAYS): board-meeting notices whose PDF reveals
+       the upcoming results date (HK has no A-share-style pre-schedule).
+
+    Returns records with source 'hk' (announcement) or 'hk-board' (meeting notice).
+    """
+    if not watchlist_hk:
+        print("  🇭🇰  No HK watchlist configured")
+        return []
+
+    from_date = TODAY - timedelta(days=LOOKBEHIND_DAYS)
+    to_date = TODAY + timedelta(days=LOOKAHEAD_DAYS)
+    records: list[dict] = []
+
+    # ── 1) 已发布的业绩公布公告 ─────────────────────────────────────────────
+    print("  🇭🇰  搜索已发布业绩公布公告（过去15天）…")
+    rows = hkex_search_windows(HKEX_PERF_TITLES, from_date, TODAY)
+    matched = 0
+    for row in rows:
+        codes = [normalize_hk_code(c) for c in row.get("STOCK_CODE", "").split("<br/>")]
+        hit = next((c for c in codes if c in watchlist_hk), None)
+        if not hit:
+            continue
+        try:
+            event_date = datetime.strptime(row["DATE_TIME"], "%d/%m/%Y %H:%M").date()
+        except (KeyError, ValueError):
+            continue
+        name = row.get("STOCK_NAME", "").split("<br/>")[0].strip()
+        title = row.get("TITLE", "").replace("<br/>", " ")
+        records.append({
+            "symbol": hit,
+            "name": name,
+            "date": event_date.isoformat(),
+            "report_type": report_type_from_title(title),
+            "title": title,
+            "source": "hk",
+        })
+        matched += 1
+    print(f"      {matched} 条匹配 watchlist")
+
+    # ── 2) 董事会会议通告（未来业绩日预告）────────────────────────────────
+    print("  🇭🇰  搜索董事会会议通告（未来90天）…")
+    board_rows = hkex_search_windows(HKEX_BOARD_TITLES, TODAY, to_date)
+    board_candidates = []
+    for row in board_rows:
+        codes = [normalize_hk_code(c) for c in row.get("STOCK_CODE", "").split("<br/>")]
+        hit = next((c for c in codes if c in watchlist_hk), None)
+        if hit:
+            board_candidates.append((hit, row))
+
+    print(f"      {len(board_candidates)} 条 watchlist 通告，解析 PDF 会议日期…")
+    pdf_ok = 0
+    for hit, row in board_candidates:
+        link = row.get("FILE_LINK", "")
+        if not link:
+            continue
+        try:
+            resp = requests.get(HKEX_FILE_BASE + link, timeout=30, headers={"User-Agent": HKEX_UA})
+            if resp.content[:5] != b"%PDF-":
+                continue
+            import pymupdf
+            doc = pymupdf.open(stream=resp.content, filetype="pdf")
+            text = "\n".join(page.get_text() for page in doc)
+            meeting_date = extract_board_meeting_date(text)
+            if not meeting_date:
+                print(f"      [!] {hit} 通告未提取到会议日期（可能为扫描件）")
+                _time.sleep(HKEX_SLEEP)
+                continue
+            # 会议日期必须在未来窗口内
+            d = date.fromisoformat(meeting_date)
+            if not (from_date <= d <= to_date):
+                _time.sleep(HKEX_SLEEP)
+                continue
+            # 报告期：从通告文本推断（截至X月X日止六個月 → 中期）
+            if re.search(r"六個月|六个月|中期", text):
+                rtype = "中期业绩"
+            elif re.search(r"全年|年度|末期", text):
+                rtype = "全年业绩"
+            else:
+                rtype = "业绩公布"
+            name = row.get("STOCK_NAME", "").split("<br/>")[0].strip()
+            title = row.get("TITLE", "").replace("<br/>", " ")
+            records.append({
+                "symbol": hit,
+                "name": name,
+                "date": meeting_date,
+                "report_type": rtype,
+                "title": title,
+                "source": "hk-board",
+            })
+            pdf_ok += 1
+        except Exception as e:
+            print(f"      [!] {hit} PDF 解析失败: {e}")
+        _time.sleep(HKEX_SLEEP)
+    print(f"      {pdf_ok} 条解析出会议日期")
+
+    # 去重：同代码同日期的董事会通告事件，被业绩公告事件覆盖
+    seen_dates = {(r["symbol"], r["date"]) for r in records if r["source"] == "hk"}
+    deduped = [r for r in records if r["source"] != "hk-board" or (r["symbol"], r["date"]) not in seen_dates]
+    return deduped
 
 
 def fmt_number(num):
@@ -397,6 +693,43 @@ def to_cn_event_lines(item: dict, dtstamp: str) -> list[str]:
     ]
 
 
+def to_hk_event_lines(item: dict, dtstamp: str) -> list[str]:
+    """Convert one HK record into RFC5545 VEVENT lines."""
+    symbol = item.get("symbol", "UNKNOWN")
+    name = item.get("name", "")
+    event_date = datetime.fromisoformat(item["date"]).date()
+    end_date = event_date + timedelta(days=1)
+    uid = f"HK-{symbol}-{event_date.isoformat()}@earning-calendar-ics"
+
+    report_type = item.get("report_type", "业绩公布")
+    is_board = item.get("source") == "hk-board"
+    summary = f"{name} {report_type}"
+    if is_board:
+        summary = f"{name} {report_type}（待公布）"
+
+    description = "\n".join(
+        [
+            f"股票代码: {symbol}",
+            f"股票简称: {name}",
+            f"报告类型: {report_type}",
+            f"事件日期: {event_date.isoformat()}",
+            f"公告标题: {item.get('title', '-')}",
+            f"Source: HKEXNews (港交所披露易){' · 董事会会议通告' if is_board else ''}",
+        ]
+    )
+
+    return [
+        "BEGIN:VEVENT",
+        f"UID:{escape_ics_text(uid)}",
+        f"DTSTAMP:{dtstamp}",
+        f"DTSTART;VALUE=DATE:{event_date.strftime('%Y%m%d')}",
+        f"DTEND;VALUE=DATE:{end_date.strftime('%Y%m%d')}",
+        f"SUMMARY:{escape_ics_text(summary)}",
+        f"DESCRIPTION:{escape_ics_text(description)}",
+        "END:VEVENT",
+    ]
+
+
 def build_calendar(records: list[dict]) -> str:
     """Build a full iCalendar payload with all records."""
     dtstamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -415,6 +748,8 @@ def build_calendar(records: list[dict]) -> str:
         # Use different conversion function based on source
         if rec.get("source") == "cn":
             lines.extend(to_cn_event_lines(rec, dtstamp))
+        elif rec.get("source") in ("hk", "hk-board"):
+            lines.extend(to_hk_event_lines(rec, dtstamp))
         else:
             lines.extend(to_event_lines(rec, dtstamp))
 
@@ -463,12 +798,23 @@ def main() -> None:
     print(f"📋  A股 Watchlist: {len(watchlist_cn)} symbols, matched {len(cn_records)} events")
     all_records.extend(cn_records)
 
+    # === 港股 ===
+    print()
+    print("🇭🇰  获取港股业绩...")
+    watchlist_hk = load_watchlist_hk()
+    hk_records = fetch_hk_earnings(watchlist_hk)
+    print(f"📋  港股 Watchlist: {len(watchlist_hk)} symbols, matched {len(hk_records)} events")
+    all_records.extend(hk_records)
+
     # === 输出 ===
     out_path = "earnings_calendar.ics"
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(build_calendar(all_records))
+    n_us = len([r for r in all_records if r.get("source") in (None, "", "yf")])
+    n_cn = len([r for r in all_records if r.get("source") == "cn"])
+    n_hk = len([r for r in all_records if r.get("source") in ("hk", "hk-board")])
     print()
-    print(f"✅  Calendar refreshed ({len(all_records)} events: {len([r for r in all_records if r.get('source') != 'cn'])} US + {len([r for r in all_records if r.get('source') == 'cn'])} CN) → {out_path}")
+    print(f"✅  Calendar refreshed ({len(all_records)} events: {n_us} US + {n_cn} CN + {n_hk} HK) → {out_path}")
 
 
 if __name__ == "__main__":

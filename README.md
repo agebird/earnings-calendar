@@ -1,19 +1,37 @@
 # 📅 Earnings Calendar (.ics Generator)
 
-This project automatically generates a `.ics` calendar file containing upcoming earnings release events for U.S.-listed companies, using data from the [Finnhub API](https://finnhub.io/).
+This project automatically generates a `.ics` calendar file containing earnings release events for three markets:
 
-The file is updated **twice daily** via GitHub Actions and is compatible with iOS/macOS/Google calendars. Useful for investors who want earnings events directly in their calendar apps.新增了A股科技股————葛小鹏
+- 🇺🇸 **US stocks** — [Finnhub API](https://finnhub.io/) (+ yfinance fallback)
+- 🇨🇳 **A-shares** — AKShare (巨潮资讯披露时间)
+- 🇭🇰 **Hong Kong stocks** — 港交所披露易 HKEXNews（业绩公布公告 + 董事会会议通告）
+
+The file is updated **twice daily** via GitHub Actions and is compatible with iOS/macOS/Google calendars. Useful for investors who want earnings events directly in their calendar apps.
 
 ---
 
 ## ✅ Features
 
 - Updates **twice per day** (10:00 and 22:00 Beijing Time)
-- Data includes **EPS** and **Revenue estimates**
+- **US**: data includes **EPS** and **Revenue estimates**, with 盘前/盘后 (bmo/amc) timing
+- **CN**: A股预约披露时间（实际披露日前一天晚间发布）
+- **HK**: 已发布的业绩公布公告 + 董事会会议通告（预告未来业绩公布日，从公告 PDF 解析会议日期）
 - Revenue numbers are formatted as `12.3 B`, `560 M`
 - All-day events, timezone-aware (ET)
 - Works in any calendar app that supports `.ics`
 - Automatically pushed to this repo for public access
+
+---
+
+## 📋 Watchlists
+
+| Market | File | Format |
+|---|---|---|
+| US | `watchlist.txt` | 代码，如 `AAPL` |
+| A股 | `watchlist_cn.txt` | 6 位数字，如 `688256` |
+| 港股 | `watchlist_hk.txt` | 5 位代码，如 `00700` / `0700` / `700.HK` |
+
+> ⚠️ 港股业绩时间说明：港股没有 A股式的"预约披露"，业绩公布日期通常在公布前约一周通过**董事会会议通告**预告。本项目会解析通告 PDF 提取会议日期作为业绩公布日（标注"待公布"）；已发布的业绩公布公告会直接作为事件。少数扫描件 PDF 无法解析，可能遗漏。
 
 ---
 
